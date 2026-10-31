@@ -1,162 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#08050d">
-<title>Death Wolf AI</title>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090611"><title>Death Wolf AI</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;background:#08050d;color:#fff;font-family:Arial,sans-serif}
-.app{max-width:460px;min-height:100vh;margin:auto;padding:28px 20px;text-align:center;background:radial-gradient(circle at 50% 35%,#281044 0%,#08050d 68%)}
-.logo{display:block;width:190px;height:190px;object-fit:contain;margin:25px auto 15px;filter:drop-shadow(0 0 16px #8500ff)}
-h1{color:#d2a5ff;font-size:30px;letter-spacing:4px;text-shadow:0 0 15px #8500ff}
-.subtitle{margin-top:10px;color:#a99bb8;font-size:12px;letter-spacing:3px}
-.status{margin:42px auto 25px;color:#c18aff;font-size:15px;min-height:22px;overflow-wrap:anywhere}
-.mic{width:105px;height:105px;border:2px solid #a000ff;border-radius:50%;background:linear-gradient(145deg,#30004f,#10001d);color:white;font-size:39px;box-shadow:0 0 25px #8500ff;cursor:pointer}
-.mic:active{transform:scale(.95)}.mic.listening{animation:pulse 1s infinite}.mic:disabled{opacity:.5;cursor:wait}
-@keyframes pulse{50%{box-shadow:0 0 48px #d000ff}}
-.reply{margin-top:34px;padding:22px 18px;min-height:82px;border:1px solid #532477;border-radius:17px;background:#130b1d;color:#d7b8ff;line-height:1.6;overflow-wrap:anywhere}
-.commands{margin-top:35px;padding:20px;text-align:left;border:1px solid #342047;border-radius:16px;background:#110b18}
-.commands h3{color:#bd7aff;margin-bottom:15px}.commands p{color:#b9a9c7;margin:11px 0;font-size:14px}
-.hint{margin:18px 4px 0;color:#9887a8;font-size:12px;line-height:1.5}
-.footer{margin-top:32px;color:#756681;font-size:11px;letter-spacing:2px}
-</style>
-</head>
-<body>
-<main class="app">
-<img src="./wolf.png" class="logo" alt="Death Wolf logo">
-<h1>DEATH WOLF</h1>
-<p class="subtitle">YOUR PERSONAL AI ASSISTANT</p>
-<div class="status" id="status" role="status">SYSTEM READY</div>
-<button class="mic" id="mic" type="button" aria-label="Speak to Death Wolf">🎙</button>
-<div class="reply" id="reply" aria-live="polite">Hello. I am Death Wolf. Tap the microphone and give me a command.</div>
-<section class="commands">
-<h3>AVAILABLE COMMANDS</h3>
-<p>• Open WhatsApp</p><p>• Open YouTube</p><p>• Open Chrome</p><p>• Open Free Fire</p>
-<p>• What is your name?</p><p>• Go to sleep</p>
-</section>
-<p class="hint">Tap the microphone once and speak. Voice recognition requires a supported browser, microphone permission and an internet connection. This prototype does not listen continuously for a wake phrase.</p>
-<div class="footer">DEATH WOLF AI • VERSION 1.2</div>
-</main>
+:root{--p:#a855f7;--bg:#090611}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 12%,#32104c,#140b20 38%,var(--bg) 78%);color:#f8f2ff;font-family:Arial,sans-serif;display:flex;justify-content:center;padding:24px 14px}.app{width:min(100%,480px);text-align:center}.logo{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 0 18px #a855f788);margin:14px auto 8px;display:block}h1{font-size:34px;letter-spacing:4px;margin:8px 0;text-shadow:0 0 18px var(--p)}.tag{font-size:11px;letter-spacing:3px;color:#c9a7e9}.panel{margin-top:25px;background:linear-gradient(145deg,#1c102b,#100a19);border:1px solid #67328b;border-radius:22px;padding:22px 18px;box-shadow:0 0 35px #7e22ce25}.status{font-size:12px;letter-spacing:2px;color:#d8b4fe;margin-bottom:12px}.response{min-height:56px;font-size:17px;line-height:1.5;margin:10px 0 18px}.mic{width:92px;height:92px;border-radius:50%;border:2px solid #e9d5ff;background:radial-gradient(circle at 35% 30%,#d8b4fe,#7e22ce 65%,#3b0764);color:white;font-size:37px;box-shadow:0 0 22px #a855f7,0 0 48px #9333ea55;cursor:pointer}.mic.listening{animation:pulse 1.5s infinite}@keyframes pulse{50%{box-shadow:0 0 35px #d946ef,0 0 65px #9333ea}}button:disabled{opacity:.6}.controls{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}.smallbtn{border:1px solid #70419a;border-radius:20px;padding:10px 16px;background:#21132f;color:#f3e8ff;font-weight:bold}.note{font-size:12px;color:#a99bb9;line-height:1.6;margin:18px 4px}.commands{text-align:left;background:#100a19;border:1px solid #38224c;border-radius:15px;padding:16px 20px;margin-top:18px}.commands h2{font-size:12px;letter-spacing:2px;color:#d8b4fe;margin:0 0 10px}.commands p{margin:7px 0;font-size:14px}footer{font-size:10px;letter-spacing:2px;color:#8c789f;margin:22px 0}
+</style></head><body><main class="app">
+<img class="logo" src="./wolf.png" alt="Death Wolf logo"><h1>DEATH WOLF</h1><div class="tag">YOUR PERSONAL AI ASSISTANT</div>
+<section class="panel"><div class="status" id="status">VOICE ASSISTANT READY</div><div class="response" id="response">Tap START LISTENING, then say “Hey Death Wolf”.</div><button class="mic" id="mic" aria-label="Start or stop listening">🎙</button><div class="controls"><button class="smallbtn" id="start">START LISTENING</button><button class="smallbtn" id="stop">STOP</button></div></section>
+<div class="note">After tapping Start Listening, say “Hey Death Wolf” followed by a command. Keep this page open and your screen awake. Your browser may stop listening or require you to tap again.</div>
+<section class="commands"><h2>AVAILABLE COMMANDS</h2><p>• Hey Death Wolf, open WhatsApp</p><p>• Hey Death Wolf, open YouTube</p><p>• Hey Death Wolf, open Chrome</p><p>• Hey Death Wolf, open Free Fire</p><p>• Hey Death Wolf, what is your name?</p><p>• Hey Death Wolf, go to sleep</p></section>
+<footer>DEATH WOLF AI • VERSION 1.3</footer></main>
 <script>
-"use strict";
-const mic = document.getElementById("mic");
-const statusText = document.getElementById("status");
-const replyBox = document.getElementById("reply");
-
-function speak(message) {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(message);
-  utterance.lang = "en-US";
-  utterance.rate = 0.92;
-  utterance.pitch = 0.88;
-  window.speechSynthesis.speak(utterance);
-}
-function respond(message) {
-  replyBox.textContent = message;
-  speak(message);
-}
-function openApp(app) {
-  const apps = {
-    whatsapp: {name:"WhatsApp", url:"intent://#Intent;scheme=whatsapp;package=com.whatsapp;end"},
-    youtube: {name:"YouTube", url:"intent://#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url=https%3A%2F%2Fwww.youtube.com;end"},
-    chrome: {name:"Chrome", url:"intent://#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fwww.google.com;end"},
-    freefire: {name:"Free Fire", url:"intent://#Intent;scheme=freefire;package=com.dts.freefireth;end"}
-  };
-  const target = apps[app];
-  if (!target) { respond("I could not find that application."); return; }
-  respond("Opening " + target.name + ".");
-  window.setTimeout(function(){ window.location.href = target.url; }, 700);
-}
-function handleCommand(command) {
-  const text = command.toLowerCase().trim();
-  if (text.includes("open whatsapp")) openApp("whatsapp");
-  else if (text.includes("open youtube")) openApp("youtube");
-  else if (text.includes("open chrome")) openApp("chrome");
-  else if (text.includes("open free fire")) openApp("freefire");
-  else if (text.includes("your name") || text.includes("who are you")) respond("I am Death Wolf, your personal assistant.");
-  else if (text.includes("hello") || text.includes("hi death wolf")) respond("Hello. Death Wolf is ready.");
-  else if (text.includes("go to sleep") || text.includes("stop listening")) respond("Going to sleep. Tap the microphone when you need me again.");
-  else respond("I heard you say: " + command + ". I do not know that command yet.");
-}
-
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition = null;
-let isStarting = false;
-let isListening = false;
-
-if (!SpeechRecognition) {
-  statusText.textContent = "VOICE RECOGNITION NOT SUPPORTED";
-  replyBox.textContent = "This browser does not provide speech recognition. Try an updated Chrome browser.";
-  mic.disabled = true;
-} else {
-  recognition = new SpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = function() {
-    isStarting = false;
-    isListening = true;
-    mic.disabled = true;
-    mic.classList.add("listening");
-    statusText.textContent = "LISTENING... SPEAK NOW";
-    replyBox.textContent = "I'm listening.";
-  };
-
-  recognition.onresult = function(event) {
-    const spoken = event.results[0][0].transcript;
-    statusText.textContent = "COMMAND RECEIVED";
-    replyBox.textContent = "You said: " + spoken;
-    handleCommand(spoken);
-  };
-
-  recognition.onerror = function(event) {
-    isStarting = false;
-    isListening = false;
-    mic.disabled = false;
-    mic.classList.remove("listening");
-    const code = event.error || "unknown-error";
-    statusText.textContent = "VOICE ERROR: " + code;
-    const explanations = {
-      "not-allowed": "Microphone permission is blocked. Allow microphone access for the browser.",
-      "service-not-allowed": "The browser speech service is unavailable or blocked.",
-      "network": "Speech recognition could not reach its online service. Check your internet connection.",
-      "no-speech": "I didn't detect speech. Tap the microphone and speak clearly.",
-      "audio-capture": "The microphone is unavailable or another app is using it.",
-      "language-not-supported": "The selected recognition language is not supported."
-    };
-    replyBox.textContent = explanations[code] || ("Speech recognition reported: " + code + ".");
-  };
-
-  recognition.onend = function() {
-    isStarting = false;
-    isListening = false;
-    mic.disabled = false;
-    mic.classList.remove("listening");
-    if (statusText.textContent.startsWith("LISTENING") || statusText.textContent === "STARTING MICROPHONE...") {
-      statusText.textContent = "SYSTEM READY";
-    }
-  };
-
-  mic.addEventListener("click", function() {
-    if (isStarting || isListening) return;
-    isStarting = true;
-    mic.disabled = true;
-    statusText.textContent = "STARTING MICROPHONE...";
-    try {
-      recognition.start();
-    } catch (error) {
-      isStarting = false;
-      mic.disabled = false;
-      statusText.textContent = "COULD NOT START: " + error.name;
-      replyBox.textContent = "The browser could not start listening. Wait until the previous listening session has fully ended, then try once more.";
-    }
-  });
-}
-</script>
-</body>
-</html>
+(()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition,status=document.getElementById("status"),response=document.getElementById("response"),mic=document.getElementById("mic"),start=document.getElementById("start"),stop=document.getElementById("stop");let rec=null,active=false,restarting=false;
+function say(s){response.textContent=s;if("speechSynthesis"in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(s);u.rate=.95;u.pitch=.85;speechSynthesis.speak(u)}}
+function stopListening(){active=false;restarting=false;if(rec){try{rec.onend=null;rec.stop()}catch(e){}}rec=null;mic.classList.remove("listening");start.disabled=false;status.textContent="VOICE ASSISTANT STOPPED"}
+function command(raw){let t=raw.toLowerCase().replace(/[.,!?]/g," ").replace(/\s+/g," ").trim();if(t.includes("open whatsapp")){say("Opening WhatsApp.");location.href="https://wa.me/"}else if(t.includes("open youtube")){say("Opening YouTube.");location.href="https://www.youtube.com/"}else if(t.includes("open chrome")){say("Please open Chrome from your phone's app launcher.")}else if(t.includes("open free fire")){say("Opening Free Fire.");location.href="intent://#Intent;scheme=freefire;package=com.dts.freefireth;end"}else if(t.includes("what is your name")||t.includes("who are you")){say("I am Death Wolf, your personal voice assistant.")}else if(t.includes("go to sleep")||t.includes("stop listening")){stopListening();say("Going to sleep. Tap Start Listening when you need me.")}else{say("I heard you, but that command is not available yet.")}}
+function heard(raw){let t=raw.toLowerCase(),i=t.indexOf("hey death wolf");if(i>=0){let cmd=t.slice(i+14).trim();if(cmd)command(cmd);else say("I'm listening. What do you need?")}}
+function begin(){if(!SR){status.textContent="VOICE RECOGNITION NOT SUPPORTED";say("Please try Google Chrome for voice recognition.");return}if(active)return;try{rec=new SR();rec.lang="en-NG";rec.continuous=true;rec.interimResults=false;rec.onstart=()=>{active=true;restarting=false;status.textContent="LISTENING FOR HEY DEATH WOLF";response.textContent="I'm listening for my wake phrase.";mic.classList.add("listening");start.disabled=true};rec.onresult=e=>{let r=e.results[e.results.length-1];if(r&&r.isFinal)heard(r[0].transcript)};rec.onerror=e=>{status.textContent="VOICE ERROR: "+e.error.toUpperCase();if(e.error==="not-allowed"||e.error==="service-not-allowed"){active=false;mic.classList.remove("listening");start.disabled=false;response.textContent="Allow microphone access in Chrome site settings, then try again."}};rec.onend=()=>{if(active&&!restarting){restarting=true;setTimeout(()=>{if(active&&rec){try{rec.start()}catch(e){restarting=false}}},900)}else{active=false;restarting=false;mic.classList.remove("listening");start.disabled=false;if(status.textContent.startsWith("LISTENING"))status.textContent="VOICE ASSISTANT READY"}};rec.start()}catch(e){status.textContent="COULD NOT START";response.textContent="Wait a moment, then tap Start Listening again.";active=false;start.disabled=false}}
+start.addEventListener("click",begin);mic.addEventListener("click",()=>active?stopListening():begin());stop.addEventListener("click",stopListening);
+})();
+</script></body></html>
