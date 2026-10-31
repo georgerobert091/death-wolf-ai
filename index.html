@@ -38,7 +38,7 @@ h1{color:#d2a5ff;font-size:30px;letter-spacing:4px;text-shadow:0 0 15px #8500ff}
 <p>• Open WhatsApp</p><p>• Open YouTube</p><p>• Open Chrome</p><p>• Open Free Fire</p>
 <p>• What is your name?</p><p>• Go to sleep</p><p>• Say “Hey Death Wolf” to wake me</p>
 </section>
-<p class="hint">Tap the microphone once, then say “Hey Death Wolf”. I will answer and listen for your command. Keep this page open and your screen awake. Voice recognition needs a supported browser, microphone permission and internet.</p>
+<p class="hint">Tap the microphone once. Watch the reply box to see what Chrome hears, then say “Hey Death Wolf”. I will answer and listen for your command. Keep this page open and your screen awake. Voice recognition needs a supported browser, microphone permission and internet.</p>
 <div class="footer">DEATH WOLF AI • VERSION 1.3</div>
 </main>
 <script>
@@ -133,7 +133,7 @@ if (!SpeechRecognition) {
   recognition = new SpeechRecognition();
   recognition.lang = "en-US";
   recognition.continuous = true;
-  recognition.interimResults = false;
+  recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
@@ -144,8 +144,12 @@ if (!SpeechRecognition) {
     for (let i = event.resultIndex; i < event.results.length; i++) {
       if (!event.results[i].isFinal) continue;
       const spoken = event.results[i][0].transcript.trim();
-      const lower = spoken.toLowerCase().replace(/[.,!?]/g, "");
-      if (mode === "wake" && /(hey\s+)?death\s+wolf/.test(lower)) {
+      const lower = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+      // Speech recognition can vary with accents; accept small variations such as
+      // “hey deaf wolf” or “hey the death wolf”.
+      const wakeDetected = /\b(hey|hello)\b.*\b(death|deaf|dead)\b.*\b(wolf|wolve)\b/.test(lower)
+        || /\b(death|deaf|dead)\s*(wolf|wolve)\b/.test(lower);
+      if (mode === "wake" && wakeDetected) {
         mode = "command";
         statusText.textContent = "WAKE WORD DETECTED";
         try { recognition.stop(); } catch(e) {}
@@ -153,6 +157,9 @@ if (!SpeechRecognition) {
           if (active) { mode = "command"; startRecognition(); }
         });
         return;
+      } else if (mode === "wake") {
+        // Show what Chrome actually heard so the user can adjust pronunciation.
+        replyBox.textContent = 'I heard: “' + spoken + '”. Say “Hey Death Wolf” again.';
       } else if (mode === "command") {
         statusText.textContent = "COMMAND RECEIVED";
         handleCommand(spoken);
@@ -176,7 +183,11 @@ if (!SpeechRecognition) {
   recognition.onend = () => {
     if (active && !speaking) {
       clearTimeout(restartTimer);
-      restartTimer = setTimeout(startRecognition, 700);
+      // Wait briefly after speech/stop so Chrome does not restart recognition
+      // while the assistant is speaking or while a command is being handled.
+      restartTimer = setTimeout(() => {
+        if (active && !speaking) startRecognition();
+      }, 1000);
     }
   };
   mic.addEventListener("click", () => {
