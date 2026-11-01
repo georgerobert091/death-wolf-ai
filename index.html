@@ -16,7 +16,15 @@ h1{color:#d2a5ff;font-size:30px;letter-spacing:4px;text-shadow:0 0 15px #8500ff}
 .reply{margin-top:25px;padding:22px 18px;min-height:82px;border:1px solid #532477;border-radius:17px;background:#130b1d;color:#d7b8ff;line-height:1.6;overflow-wrap:anywhere}
 .commands{margin-top:35px;padding:20px;text-align:left;border:1px solid #342047;border-radius:16px;background:#110b18}.commands h3{color:#bd7aff;margin-bottom:15px}.commands p{color:#b9a9c7;margin:11px 0;font-size:14px}
 .hint{margin:18px 4px 0;color:#9887a8;font-size:12px;line-height:1.5}.footer{margin-top:32px;color:#756681;font-size:11px;letter-spacing:2px}
-</style></head><body><main class="app">
+</style>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="theme-color" content="#08050d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Death Wolf">
+</head><body><main class="app">
 <img src="./wolf.png" class="logo" alt="Death Wolf logo"><h1>DEATH WOLF</h1><p class="subtitle">YOUR PERSONAL AI ASSISTANT</p>
 <div class="status" id="status" role="status">ONE TAP READY</div>
 <button class="mic" id="mic" type="button" aria-label="Start listening">🎙</button>
@@ -146,4 +154,14 @@ function stopListening(){
 }
 mic.addEventListener('click',startListening);
 stopBtn.addEventListener('click',stopListening);
-</script></body></html>
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => {
+      console.warn("Death Wolf offline support could not start:", err);
+    });
+  });
+}
+</script>
+</body></html>
