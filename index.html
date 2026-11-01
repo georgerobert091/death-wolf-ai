@@ -27,19 +27,123 @@ h1{color:#d2a5ff;font-size:30px;letter-spacing:4px;text-shadow:0 0 15px #8500ff}
 <div class="footer">DEATH WOLF AI • VERSION 1.2 • THRONE EDITION</div></main>
 <script>
 "use strict";
-const mic=document.getElementById('mic'), stopBtn=document.getElementById('stop'), statusText=document.getElementById('status'), replyBox=document.getElementById('reply');
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let active=false, mode='wake', rec=null, restartTimer=null, session=0;
-function chooseVoice(){const voices=window.speechSynthesis?window.speechSynthesis.getVoices():[];return voices.find(v=>/en/i.test(v.lang)&&/male|david|mark|daniel|guy|aaron/i.test(v.name))||voices.find(v=>/en/i.test(v.lang))||null;}
-function speak(text,done){replyBox.textContent=text;if(!window.speechSynthesis){if(done)done();return;}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.88;u.pitch=.78;const v=chooseVoice();if(v)u.voice=v;u.onend=()=>{if(done)done();};u.onerror=()=>{if(done)done();};window.speechSynthesis.speak(u);}
-function sayStatus(s){statusText.textContent=s;}
-function clean(s){return s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
-function isWake(s){const t=clean(s);return /(throne|thron|thrown|thronee)/.test(t);}
-function openApp(app){const apps={whatsapp:{name:'WhatsApp',url:'https://wa.me/'},youtube:{name:'YouTube',url:'https://www.youtube.com/'},chrome:{name:'Google search',url:'https://www.google.com/'},freefire:{name:'Free Fire',url:'intent://#Intent;scheme=freefire;package=com.dts.freefireth;end'}};const a=apps[app];if(!a){speak('I could not find that application.');return;}speak('Opening '+a.name+'.');setTimeout(()=>{window.location.href=a.url;},900);}
-function command(text){const t=clean(text);if(t.includes('open whatsapp'))openApp('whatsapp');else if(t.includes('open youtube'))openApp('youtube');else if(t.includes('open chrome'))openApp('chrome');else if(t.includes('open free fire')||t==='free fire')openApp('freefire');else if(t.includes('your name')||t.includes('who are you'))speak('I am Death Wolf, your personal assistant.');else if(t.includes('go to sleep')||t.includes('stop listening')){speak('Going to sleep.');stopListening();}else speak('I did not recognize that command. Please try again.');}
-function scheduleListen(nextMode,delay=450){mode=nextMode;if(!active)return;clearTimeout(restartTimer);restartTimer=setTimeout(startRecognition,delay);}
-function startRecognition(){if(!active||!SR)return;const my=++session;try{rec=new SR();rec.lang='en-US';rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=5;rec.onstart=()=>{if(my!==session)return;mic.classList.add('listening');sayStatus(mode==='wake'?'LISTENING FOR “THRONE”':'LISTENING FOR COMMAND');};rec.onresult=e=>{if(my!==session||!active)return;let heard='';for(let i=0;i<e.results[0].length;i++){const candidate=e.results[0][i].transcript;if(candidate){heard=candidate;if(mode==='wake'&&isWake(candidate))break;}}if(mode==='wake'){if(isWake(heard)){mode='command';sayStatus('WAKE WORD DETECTED');speak("I'm listening. What do you need?",()=>scheduleListen('command',300));}else{sayStatus('STILL LISTENING FOR “THRONE”');scheduleListen('wake',350);}}else{sayStatus('COMMAND RECEIVED');command(heard);if(active&&mode==='command')scheduleListen('wake',1200);}};rec.onerror=e=>{if(my!==session||!active)return;if(e.error==='not-allowed'||e.error==='service-not-allowed'){sayStatus('MICROPHONE PERMISSION NEEDED');speak('Please allow microphone access in Chrome.');stopListening();}else if(e.error==='network'){sayStatus('CHECK INTERNET CONNECTION');scheduleListen(mode,1600);}else if(e.error!=='no-speech'&&e.error!=='aborted'){sayStatus('VOICE RECOGNITION RETRYING');scheduleListen(mode,1000);}};rec.onend=()=>{if(my!==session)return;mic.classList.remove('listening');if(active&&!restartTimer)scheduleListen(mode,400);};rec.start();}catch(err){mic.classList.remove('listening');if(active)scheduleListen(mode,900);}}
-function startListening(){if(!SR){sayStatus('VOICE RECOGNITION NOT SUPPORTED');speak('Please use an updated Chrome browser.');return;}if(active)return;active=true;mode='wake';mic.setAttribute('aria-label','Listening for Throne');sayStatus('STARTING...');replyBox.textContent='Listening for your wake word: Throne.';startRecognition();}
-function stopListening(){active=false;clearTimeout(restartTimer);restartTimer=null;session++;if(rec){try{rec.onend=null;rec.stop();}catch(e){}rec=null;}if(window.speechSynthesis)window.speechSynthesis.cancel();mic.classList.remove('listening');mic.setAttribute('aria-label','Start listening');sayStatus('ONE TAP READY');replyBox.textContent='I am asleep. Tap the microphone when you need me.';}
-mic.addEventListener('click',startListening);stopBtn.addEventListener('click',stopListening);
+const mic=document.getElementById('mic');
+const stopBtn=document.getElementById('stop');
+const statusText=document.getElementById('status');
+const replyBox=document.getElementById('reply');
+const SpeechAPI=window.SpeechRecognition||window.webkitSpeechRecognition;
+let active=false, mode='wake', recognition=null, restartTimer=null, session=0, speaking=false;
+
+function status(message){statusText.textContent=message;}
+function clean(text){return String(text||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function isWake(text){
+  const words=clean(text).split(' ').filter(Boolean);
+  // Accept the exact word and common speech-recognition spellings of “Throne”.
+  return words.some(word=>['throne','thron','thrown','thronee','throneh','thrown'].includes(word));
+}
+function chooseVoice(){
+  if(!window.speechSynthesis) return null;
+  const voices=window.speechSynthesis.getVoices();
+  return voices.find(v=>/^en/i.test(v.lang)&&/male|david|mark|daniel|guy|aaron/i.test(v.name)) || voices.find(v=>/^en/i.test(v.lang)) || null;
+}
+function speak(text,after){
+  replyBox.textContent=text;
+  if(!window.speechSynthesis){if(after)after();return;}
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.lang='en-US'; utterance.rate=0.88; utterance.pitch=0.78;
+  const voice=chooseVoice(); if(voice)utterance.voice=voice;
+  speaking=true;
+  const finish=()=>{if(!speaking)return;speaking=false;if(after&&active)after();};
+  utterance.onend=finish; utterance.onerror=finish;
+  window.speechSynthesis.speak(utterance);
+}
+function scheduleRecognition(nextMode,delay=450){
+  mode=nextMode;
+  if(!active)return;
+  clearTimeout(restartTimer);
+  restartTimer=setTimeout(()=>{restartTimer=null;startRecognition();},delay);
+}
+function openApp(app){
+  const apps={
+    whatsapp:{name:'WhatsApp',url:'https://wa.me/'},
+    youtube:{name:'YouTube',url:'https://www.youtube.com/'},
+    chrome:{name:'Google Search',url:'https://www.google.com/'},
+    freefire:{name:'Free Fire',url:'intent://#Intent;scheme=freefire;package=com.dts.freefireth;end'}
+  };
+  const target=apps[app];
+  if(!target){speak('I could not find that application.');return;}
+  speak('Opening '+target.name+'.');
+  setTimeout(()=>{if(active)window.location.href=target.url;},850);
+}
+function handleCommand(raw){
+  const text=clean(raw);
+  if(text.includes('open whatsapp')||text==='whatsapp')openApp('whatsapp');
+  else if(text.includes('open youtube')||text==='youtube')openApp('youtube');
+  else if(text.includes('open chrome')||text==='chrome')openApp('chrome');
+  else if(text.includes('open free fire')||text==='free fire'||text==='freefire')openApp('freefire');
+  else if(text.includes('your name')||text.includes('who are you'))speak('I am Death Wolf, your personal assistant.');
+  else if(text.includes('go to sleep')||text.includes('stop listening')){speak('Going to sleep.',stopListening);return;}
+  else speak('I did not recognize that command. Please try again.');
+}
+function startRecognition(){
+  if(!active||!SpeechAPI||speaking)return;
+  const thisSession=++session;
+  try{
+    const r=new SpeechAPI(); recognition=r;
+    r.lang='en-US'; r.continuous=false; r.interimResults=false; r.maxAlternatives=5;
+    r.onstart=()=>{if(thisSession!==session)return;mic.classList.add('listening');status(mode==='wake'?'LISTENING FOR “THRONE”':'LISTENING FOR COMMAND');};
+    r.onresult=(event)=>{
+      if(thisSession!==session||!active)return;
+      const result=event.results[event.results.length-1];
+      const alternatives=[];
+      for(let i=0;i<result.length;i++)alternatives.push(result[i].transcript);
+      if(mode==='wake'){
+        const match=alternatives.find(isWake);
+        if(match){mode='command';status('THRONE DETECTED');speak("I'm listening. What do you need?",()=>scheduleRecognition('command',350));}
+        else{status('LISTENING FOR “THRONE”');scheduleRecognition('wake',500);}
+      }else{
+        const spoken=alternatives[0]||'';
+        status('COMMAND RECEIVED');
+        handleCommand(spoken);
+        if(active&&mode==='command')scheduleRecognition('wake',1400);
+      }
+    };
+    r.onerror=(event)=>{
+      if(thisSession!==session||!active)return;
+      mic.classList.remove('listening');
+      if(event.error==='not-allowed'||event.error==='service-not-allowed'){
+        status('MICROPHONE PERMISSION NEEDED');
+        speak('Please allow microphone access in Chrome.');
+        stopListening();
+      }else if(event.error==='network'){
+        status('CHECK INTERNET CONNECTION');scheduleRecognition(mode,1800);
+      }else if(event.error!=='no-speech'&&event.error!=='aborted'){
+        status('RESTARTING LISTENING');scheduleRecognition(mode,900);
+      }
+    };
+    r.onend=()=>{
+      if(thisSession!==session)return;
+      mic.classList.remove('listening');
+      if(active&&!restartTimer&&!speaking)scheduleRecognition(mode,500);
+    };
+    r.start();
+  }catch(error){mic.classList.remove('listening');if(active&&!restartTimer)scheduleRecognition(mode,1000);}
+}
+function startListening(){
+  if(!SpeechAPI){status('VOICE RECOGNITION NOT SUPPORTED');speak('Please use an updated version of Chrome.');return;}
+  if(active)return;
+  active=true;mode='wake';mic.setAttribute('aria-label','Listening for Throne');
+  status('STARTING LISTENING');replyBox.textContent='Say “Throne” to wake Death Wolf.';
+  startRecognition();
+}
+function stopListening(){
+  active=false;clearTimeout(restartTimer);restartTimer=null;session++;speaking=false;
+  if(recognition){try{recognition.onend=null;recognition.onerror=null;recognition.stop();}catch(error){}recognition=null;}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  mic.classList.remove('listening');mic.setAttribute('aria-label','Start listening');
+  status('ONE TAP READY');replyBox.textContent='I am asleep. Tap the microphone when you need me.';
+}
+mic.addEventListener('click',startListening);
+stopBtn.addEventListener('click',stopListening);
 </script></body></html>
